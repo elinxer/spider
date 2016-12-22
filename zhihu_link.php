@@ -54,9 +54,9 @@ $GLOBALS['config']['db'] = array(
 
 
 echo '<pre>';
-
-print_r($topic_root);
-
+//
+//print_r($topic_root);
+//die();
 
 zh_topic_tree($topic_root[1][0], $post_data);
 
@@ -101,7 +101,8 @@ function zh_topic_tree($root, $post_data)
             $more_post  = requests::post($more_url, $post_data);
             $topic_root = json_decode($more_post, true);
             $more_item  = $topic_root['msg'][1];
-            if (is_array($child_item) && is_array($more_item))
+
+            if (!empty($child_item) && is_array($more_item))
             {
                 $child_item = array_merge($child_item, $more_item);
             }
