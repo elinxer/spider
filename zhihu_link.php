@@ -28,24 +28,19 @@ requests::set_header('Cookie', $cookie_arr[rand(0,3)]);
 
 
 $root_url = "https://www.zhihu.com/topic/19776749/organize/entire";
-
 $r   = requests::get($root_url);
-
 $arr = selector::select($r, "@<input type=\"hidden\" name=\"_xsrf\" value=\"(.*)\"/>@", 'regex');
+$post_data = array('_xsrf' => $arr);
 
-$post_data = array(
-    '_xsrf' => $arr
-);
-
-////设置代理
+//设置代理
 $proxies = array(
     'http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010',
     //'https' => 'http://user:pass@host:port',
 );
+
 requests::set_proxies($proxies);
 
-$r  = requests::post($root_url, $post_data);
-
+$r = requests::post($root_url, $post_data);
 
 //https://www.zhihu.com/topic/19776749/organize/entire?child=&parent=19615623 //显示子话题
 //https://www.zhihu.com/topic/19776749/organize/entire?child=19746496&parent=19776751 // 加载更多
