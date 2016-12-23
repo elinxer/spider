@@ -46,6 +46,7 @@ requests::set_proxies($proxies);
 
 $r  = requests::post($root_url, $post_data);
 
+
 //https://www.zhihu.com/topic/19776749/organize/entire?child=&parent=19615623 //显示子话题
 //https://www.zhihu.com/topic/19776749/organize/entire?child=19746496&parent=19776751 // 加载更多
 
@@ -91,7 +92,14 @@ function zh_topic_tree($root, $post_data, $cookie_arr)
             }
 
             requests::set_header('Cookie', $cookie_arr[rand(0,3)]);
+
+            $root_url = "https://www.zhihu.com/topic/19776749/organize/entire";
+            $r   = requests::get($root_url);
+            $arr = selector::select($r, "@<input type=\"hidden\" name=\"_xsrf\" value=\"(.*)\"/>@", 'regex');
+            $post_data = array('_xsrf' => $arr);
+
             $child_post = requests::post($sub_topic_url, $post_data);
+
             $topic_root = json_decode($child_post, true);
             $child_item = $topic_root['msg'][1];
 
@@ -115,6 +123,12 @@ function zh_topic_tree($root, $post_data, $cookie_arr)
             $more_url   = "https://www.zhihu.com/topic/19776749/organize/entire?child={$root_item['2']}&parent={$root_item[3]}";
 
             requests::set_header('Cookie', $cookie_arr[rand(0,3)]);
+
+            $root_url = "https://www.zhihu.com/topic/19776749/organize/entire";
+            $r   = requests::get($root_url);
+            $arr = selector::select($r, "@<input type=\"hidden\" name=\"_xsrf\" value=\"(.*)\"/>@", 'regex');
+            $post_data = array('_xsrf' => $arr);
+
             $more_post  = requests::post($more_url, $post_data);
             $topic_root = json_decode($more_post, true);
             $more_item  = $topic_root['msg'][1];
