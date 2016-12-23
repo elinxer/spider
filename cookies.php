@@ -242,7 +242,9 @@ $cookies = '[
 
 $cookies = json_decode($cookies, true);
 
-foreach ($cookies as $key => $value) {
+$arr = array();
+foreach ($cookies as $key => $value)
+{
 	
 	$arr[] = $value['name'] . '=' . $value['value'];
 
