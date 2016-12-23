@@ -27,7 +27,7 @@ $post_data = array(
     '_xsrf' => $arr
 );
 
-//设置代理
+////设置代理
 $proxies = array(
     'http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010',
     //'https' => 'http://user:pass@host:port',
@@ -71,6 +71,8 @@ function zh_topic_tree($root, $post_data)
         if ($root_item[0] == 'load' && empty($child_item))
         { //print_r("kong"); 循环子级话题
 
+            sleep(1);
+
             $sub_topic_url = 'https://www.zhihu.com/topic/19776749/organize/entire?child=&parent='.$root_item[2];
 
             if (empty($root_item[2]) && !empty($root_item[3]))
@@ -81,6 +83,7 @@ function zh_topic_tree($root, $post_data)
             $child_post = requests::post($sub_topic_url, $post_data);
             $topic_root = json_decode($child_post, true);
             $child_item = $topic_root['msg'][1];
+
         }
         else
         {
@@ -96,7 +99,9 @@ function zh_topic_tree($root, $post_data)
         if (!empty($root_item[2]) && !empty($root_item[3]))
         { //获取加载更多
 
-            $more_url = "https://www.zhihu.com/topic/19776749/organize/entire?child={$root_item['2']}&parent={$root_item[3]}";
+            sleep(1);
+
+            $more_url   = "https://www.zhihu.com/topic/19776749/organize/entire?child={$root_item['2']}&parent={$root_item[3]}";
 
             $more_post  = requests::post($more_url, $post_data);
             $topic_root = json_decode($more_post, true);
