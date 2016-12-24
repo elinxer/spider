@@ -73,6 +73,16 @@ foreach ($topic_list as $topic_key=>$topic)
         $url  = "https://www.zhihu.com/topic/{$topic['topic_code']}/top-answers?page={$i}";
         $content = requests::get($url);
 
+        if (empty($content)){
+            $content = requests::get($url);
+            usleep(300);
+        }
+
+        if (empty($content)){
+            $content = requests::get($url);
+            usleep(300);
+        }
+
         $list_urls   = selector::select($content, "//h2/a[contains(@class, 'question_link')]/@href");
         $list_titles = selector::select($content, "//h2/a[contains(@class, 'question_link')]");
 
@@ -103,8 +113,13 @@ foreach ($topic_list as $topic_key=>$topic)
         sleep(1);
     }
 
-    $sql = "UPDATE `zh_topic` SET loaded=1 WHERE pid={$topic['pid']} and topic_code={$topic['topic_code']}";
-    db::query($sql);
+
+    if (!empty($insert))
+    {
+        $sql = "UPDATE `zh_topic` SET loaded=1 WHERE pid={$topic['pid']} and topic_code={$topic['topic_code']}";
+        db::query($sql);
+    }
+
 
     break; // 每次只采集一个话题
 }
@@ -117,5 +132,5 @@ if (empty($topic_list))
 }
 
 $time = time();
-//echo "<script>window.location.href='http://127.0.0.2/zh_question_list.php?time={$time}';</script>";
+echo "<script>window.location.href='http://127.0.0.2/zh_question_list.php?time={$time}';</script>";
 
