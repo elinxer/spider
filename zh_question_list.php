@@ -24,6 +24,14 @@ $cookie_arr = array(
 
 );
 
+//设置代理
+$proxies = array(
+    'http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010',
+    //'https' => 'http://user:pass@host:port',
+);
+
+requests::set_proxies($proxies);
+
 requests::set_header('Cookie', $cookie_arr[rand(1, 6)]);
 
 $GLOBALS['config']['db'] = array(
@@ -44,14 +52,19 @@ $sql = "SELECT
             `zh_topic`
         WHERE
             loaded = 0
+            AND loading=0
         GROUP BY
             topic_code
         LIMIT 1";
 
 $topic_list = db::get_all($sql);
 
+
 foreach ($topic_list as $topic_key=>$topic)
 {
+    $sql = "UPDATE `zh_topic` SET loading=1 WHERE pid={$topic['pid']} and topic_code={$topic['topic_code']}";
+    db::query($sql);
+
     print_r($topic);
     $insert = array();
     for ($i=1; $i <= 100; $i++)
@@ -59,6 +72,16 @@ foreach ($topic_list as $topic_key=>$topic)
 
         $url  = "https://www.zhihu.com/topic/{$topic['topic_code']}/top-answers?page={$i}";
         $content = requests::get($url);
+
+        if (empty($content)){
+            $content = requests::get($url);
+            usleep(300);
+        }
+
+        if (empty($content)){
+            $content = requests::get($url);
+            usleep(300);
+        }
 
         $list_urls   = selector::select($content, "//h2/a[contains(@class, 'question_link')]/@href");
         $list_titles = selector::select($content, "//h2/a[contains(@class, 'question_link')]");
@@ -90,8 +113,13 @@ foreach ($topic_list as $topic_key=>$topic)
         sleep(1);
     }
 
-    $sql = "UPDATE `zh_topic` SET loaded=1 WHERE pid={$topic['pid']} and topic_code={$topic['topic_code']}";
-    db::query($sql);
+
+    if (!empty($insert))
+    {
+        $sql = "UPDATE `zh_topic` SET loaded=1 WHERE pid={$topic['pid']} and topic_code={$topic['topic_code']}";
+        db::query($sql);
+    }
+
 
     break; // 每次只采集一个话题
 }
@@ -104,5 +132,5 @@ if (empty($topic_list))
 }
 
 $time = time();
-echo "<script>window.location.href='http://127.0.0.2/spider/zh_question_list.php?time={$time}';</script>";
+echo "<script>window.location.href='http://127.0.0.2/zh_question_list.php?time={$time}';</script>";
 
