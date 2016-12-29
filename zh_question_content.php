@@ -4,7 +4,7 @@ ini_set("memory_limit", "2048M");
 
 set_time_limit(0);
 
-error_reporting(E_ALL);
+// error_reporting(E_ALL);
 
 require dirname(__FILE__).'/phpspider/core/requests.php';
 require dirname(__FILE__).'/phpspider/core/selector.php';
@@ -28,10 +28,39 @@ $proxies = array(
     //'https' => 'http://user:pass@host:port',
 );
 
-if (rand(1,99) > 60)
+$rand = rand(1,99);
+
+if ($rand > 60 && $rand <= 70)
 {
-    //requests::set_proxies($proxies);
+    requests::set_proxies($proxies);
     sleep(1);
+}
+
+if ($rand <20)
+{
+    requests::set_proxies(array('http' => 'http://124.88.67.52:843'));
+}
+
+if ($rand >30 && $rand<=40)
+{
+    requests::set_proxies(array('http' => 'http://110.73.3.247:8123'));
+}
+
+if ($rand >40 && $rand<=50)
+{
+    requests::set_proxies(array('http' => 'http://183.129.151.130:80'));
+}
+
+if ($rand >50 && $rand <=55){
+    requests::set_proxies(array('http'=>'http://111.155.124.71:8123'));
+}
+
+if ($rand >70 && $rand <=80){
+    requests::set_proxies(array('http'=>'http://124.88.67.10:80'));
+}
+
+if ($rand >80 && $rand <=90){
+    requests::set_proxies(array('http'=>'http://121.14.6.236:80'));
 }
 
 requests::set_header('Cookie', $cookie_arr[rand(0,5)]);
@@ -47,7 +76,7 @@ $GLOBALS['config']['db'] = array(
 $sql = "SELECT * FROM `zh_question_list` WHERE loaded=0 and loading=0 limit 1";
 $question = db::get_one($sql);
 
-if (!empty($insert))
+if (!empty($question))
 {
     $sql = "UPDATE `zh_question_list` SET loading=1 WHERE question_code={$question['question_code']}";
     db::query($sql);
@@ -189,5 +218,5 @@ function get_answer($answer, $question)
 }
 
 $time = time();
-echo "<script>window.location.href='http://127.0.0.2/zh_question_content.php?time={$time}';</script>";
+echo "<script>window.location.href='http://127.0.0.2/spider/zh_question_content.php?time={$time}';</script>";
 
