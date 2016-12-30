@@ -33,38 +33,37 @@ $ips_arr = array(
 
 $rand = rand(1,99);
 
-if ($rand > 60 && $rand <= 70)
-{
-    requests::set_proxies(array('http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010'));
-    sleep(1);
-}
-
-if ($rand <20)
-{
-    requests::set_proxies(array('http' => 'http://124.88.67.52:843'));
-}
-
-if ($rand >30 && $rand<=40)
-{
-    requests::set_proxies(array('http' => 'http://110.73.3.247:8123'));
-}
-
-if ($rand >40 && $rand<=50)
-{
-    requests::set_proxies(array('http' => 'http://183.129.151.130:80'));
-}
-
-if ($rand >50 && $rand <=55){
-    requests::set_proxies(array('http'=>'http://111.155.124.71:8123'));
-}
-
-if ($rand >70 && $rand <=80){
-    requests::set_proxies(array('http'=>'http://124.88.67.10:80'));
-}
-
-if ($rand >80 && $rand <=90){
-    requests::set_proxies(array('http'=>'http://121.14.6.236:80'));
-}
+//if ($rand > 60 && $rand <= 70)
+//{
+//    requests::set_proxies(array('http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010'));
+//}
+//
+//if ($rand <20)
+//{
+//    requests::set_proxies(array('http' => 'http://124.88.67.52:843'));
+//}
+//
+//if ($rand >30 && $rand<=40)
+//{
+//    requests::set_proxies(array('http' => 'http://110.73.3.247:8123'));
+//}
+//
+//if ($rand >40 && $rand<=50)
+//{
+//    requests::set_proxies(array('http' => 'http://183.129.151.130:80'));
+//}
+//
+//if ($rand >50 && $rand <=55){
+//    requests::set_proxies(array('http'=>'http://111.155.124.71:8123'));
+//}
+//
+//if ($rand >70 && $rand <=80){
+//    requests::set_proxies(array('http'=>'http://124.88.67.10:80'));
+//}
+//
+//if ($rand >80 && $rand <=90){
+//    requests::set_proxies(array('http'=>'http://121.14.6.236:80'));
+//}
 
 //requests::set_header('Cookie', $cookie_arr[rand(0,5)]);
 
@@ -88,11 +87,28 @@ if (!empty($question))
 echo '<pre>';
 print_r($question);
 
+requests::set_proxies(array('https'=>'https://218.29.111.106:9999'));
+
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36');
 
 $question_url  = "https://www.zhihu.com/question/{$question['question_code']}";
-$question_page = requests::get($question_url);
+echo $question_page = requests::get($question_url);
 $answer_arr = selector::select($question_page, "//div[contains(@class, 'zm-item-answer  zm-item-expanded')]");
+
+
+$context = array(
+    'https' => array(
+        'proxy' => "tcp://218.29.111.106:9999",
+        'request_fulluri' => true,
+        'timeout' => 5
+    ),
+
+);
+
+$context = stream_context_create($context);
+echo file_get_contents($question_url, false, $context);
+
+print_r(requests::$info); die();
 
 $insert = array();
 if (!empty($answer_arr))
@@ -101,10 +117,9 @@ if (!empty($answer_arr))
     {
         $insert[] = get_answer($answer, $question);
     }
+    db::insert_batch('zh_question_answer', $insert);
+
 }
-
-
-db::insert_batch('zh_question_answer', $insert);
 
 $file_path = "html/zh_question_page/{$question['question_code']}.html";
 file_put_contents($file_path, $question_page);
