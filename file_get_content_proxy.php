@@ -18,7 +18,7 @@ require dirname(__FILE__).'/phpspider/core/selector.php';
 //$auth =	base64_encode('654753115@qq.com:a654753115');
 
  $context = array(
-      'https' => array(
+      'http' => array(
           	'proxy' => 'tcp://124.88.67.52:843',
           	'request_fulluri' => true,
           ),
@@ -30,8 +30,9 @@ require dirname(__FILE__).'/phpspider/core/selector.php';
 
  $context = stream_context_create($context);
 
-// echo $html    = file_get_contents($url, false, $context);
+ echo $html    = file_get_contents($url, false, $context);
 
+die();
 //requests::set_client_ip('124.88.67.52:843');
 
 //$proxies = array(

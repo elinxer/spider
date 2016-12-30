@@ -22,17 +22,20 @@ $cookie_arr = array(
 );
 
 
-//设置代理
-$proxies = array(
-    'http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010',
-    //'https' => 'http://user:pass@host:port',
+$ips_arr = array(
+//    array('ip'=>'121.14.6.236','http'=>'https','port'=>80),
+//    array('ip'=>'124.88.67.10','http'=>'http','port'=>80),
+//    array('ip'=>'111.155.124.71','http'=>'http','port'=>8123),
+//    array('ip'=>'183.129.151.130','http'=>'http','port'=>80),
+//    array('ip'=>'110.73.3.247','http'=>'http','port'=>8123),
+//    array('ip'=>'124.88.67.52','http'=>'http','port'=>843),
 );
 
 $rand = rand(1,99);
 
 if ($rand > 60 && $rand <= 70)
 {
-    requests::set_proxies($proxies);
+    requests::set_proxies(array('http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010'));
     sleep(1);
 }
 
@@ -63,7 +66,7 @@ if ($rand >80 && $rand <=90){
     requests::set_proxies(array('http'=>'http://121.14.6.236:80'));
 }
 
-requests::set_header('Cookie', $cookie_arr[rand(0,5)]);
+//requests::set_header('Cookie', $cookie_arr[rand(0,5)]);
 
 $GLOBALS['config']['db'] = array(
     'host'		=>	'127.0.0.1',
@@ -79,15 +82,16 @@ $question = db::get_one($sql);
 if (!empty($question))
 {
     $sql = "UPDATE `zh_question_list` SET loading=1 WHERE question_code={$question['question_code']}";
-    db::query($sql);
+    //db::query($sql);
 }
 
 echo '<pre>';
 print_r($question);
 
+requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36');
+
 $question_url  = "https://www.zhihu.com/question/{$question['question_code']}";
 $question_page = requests::get($question_url);
-
 $answer_arr = selector::select($question_page, "//div[contains(@class, 'zm-item-answer  zm-item-expanded')]");
 
 $insert = array();
@@ -99,7 +103,7 @@ if (!empty($answer_arr))
     }
 }
 
-//print_r($insert); die;
+
 db::insert_batch('zh_question_answer', $insert);
 
 $file_path = "html/zh_question_page/{$question['question_code']}.html";
@@ -118,7 +122,12 @@ for ($i=1; $i<=50; $i++)
     ));
 
     $answer_url    = 'https://www.zhihu.com/node/QuestionAnswerListV2';
-    $answer_result = requests::post($answer_url, $post_data);
+    $a = new requests();
+    $a->set_proxies(array('http'=>'http://124.88.67.10:80'));
+    echo $answer_result = requests::post($answer_url, $post_data);
+    print_r(requests::$info);
+    die();
+
     $answer_result = json_decode($answer_result, true);
     $answer_result = $answer_result['msg'];
 
@@ -129,6 +138,7 @@ for ($i=1; $i<=50; $i++)
         {
             $insert[] = get_answer($answer, $question);
         }
+        $has = 1;
         db::insert_batch('zh_question_answer', $insert);
     }
     else{
@@ -140,10 +150,10 @@ for ($i=1; $i<=50; $i++)
 
 sleep(1);
 
-if (!empty($insert))
+if (!empty($has))
 {
     $sql = "UPDATE `zh_question_list` SET loaded=1 WHERE question_code={$question['question_code']}";
-    db::query($sql);
+    //db::query($sql);
 }
 
 if (empty($question))
@@ -216,6 +226,42 @@ function get_answer($answer, $question)
 
     return $insert;
 }
+
+
+function file_get_contents_proxy($url, $ips=array())
+{
+    if (!empty($ips))
+    {
+        $ip = $ips[rand(0, count($ips)-1)];
+        if ($ip['http'] == 'http')
+        {
+            $context = array(
+                'http' => array(
+                    'proxy' => "tcp://{$ip['ip']}:{$ip['port']}",
+                    'request_fulluri' => true,
+                    'timeout' => 5
+                ),
+
+            );
+        }
+        else {
+            $context = array(
+                'https' => array(
+                    'proxy' => "tcp://{$ip['ip']}:{$ip['port']}",
+                    'request_fulluri' => true,
+                    'timeout' => 5
+                ),
+
+            );
+        }
+
+        $context = stream_context_create($context);
+        return file_get_contents($url, false, $context);
+    }
+    return '';
+}
+
+
 
 $time = time();
 echo "<script>window.location.href='http://127.0.0.2/spider/zh_question_content.php?time={$time}';</script>";
