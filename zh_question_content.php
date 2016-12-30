@@ -21,49 +21,7 @@ $cookie_arr = array(
 
 );
 
-
-$ips_arr = array(
-//    array('ip'=>'121.14.6.236','http'=>'https','port'=>80),
-//    array('ip'=>'124.88.67.10','http'=>'http','port'=>80),
-//    array('ip'=>'111.155.124.71','http'=>'http','port'=>8123),
-//    array('ip'=>'183.129.151.130','http'=>'http','port'=>80),
-//    array('ip'=>'110.73.3.247','http'=>'http','port'=>8123),
-//    array('ip'=>'124.88.67.52','http'=>'http','port'=>843),
-);
-
 $rand = rand(1,99);
-
-//if ($rand > 60 && $rand <= 70)
-//{
-//    requests::set_proxies(array('http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010'));
-//}
-//
-//if ($rand <20)
-//{
-//    requests::set_proxies(array('http' => 'http://124.88.67.52:843'));
-//}
-//
-//if ($rand >30 && $rand<=40)
-//{
-//    requests::set_proxies(array('http' => 'http://110.73.3.247:8123'));
-//}
-//
-//if ($rand >40 && $rand<=50)
-//{
-//    requests::set_proxies(array('http' => 'http://183.129.151.130:80'));
-//}
-//
-//if ($rand >50 && $rand <=55){
-//    requests::set_proxies(array('http'=>'http://111.155.124.71:8123'));
-//}
-//
-//if ($rand >70 && $rand <=80){
-//    requests::set_proxies(array('http'=>'http://124.88.67.10:80'));
-//}
-//
-//if ($rand >80 && $rand <=90){
-//    requests::set_proxies(array('http'=>'http://121.14.6.236:80'));
-//}
 
 //requests::set_header('Cookie', $cookie_arr[rand(0,5)]);
 
@@ -81,34 +39,45 @@ $question = db::get_one($sql);
 if (!empty($question))
 {
     $sql = "UPDATE `zh_question_list` SET loading=1 WHERE question_code={$question['question_code']}";
-    //db::query($sql);
+    db::query($sql);
 }
 
-echo '<pre>';
-print_r($question);
 
-requests::set_proxies(array('https'=>'https://218.29.111.106:9999'));
+if ($rand >50)
+{
+    requests::set_proxies(array('http'=>'tcp://219.133.31.120:8888'));
+}
+
+if ($rand <50 )
+{
+    requests::set_proxies(array('http' => 'http://H63CM9OB7937832P:635BCC6BACA7E2C1@proxy.abuyun.com:9010'));
+}
 
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36');
 
 $question_url  = "https://www.zhihu.com/question/{$question['question_code']}";
-echo $question_page = requests::get($question_url);
+
+//$question_url = 'http://test2.zuzuche.com/_yds_/curl/request.php';
+
+
+$question_page = requests::get($question_url);
+
 $answer_arr = selector::select($question_page, "//div[contains(@class, 'zm-item-answer  zm-item-expanded')]");
 
-
-$context = array(
-    'https' => array(
-        'proxy' => "tcp://218.29.111.106:9999",
-        'request_fulluri' => true,
-        'timeout' => 5
-    ),
-
-);
-
-$context = stream_context_create($context);
-echo file_get_contents($question_url, false, $context);
-
-print_r(requests::$info); die();
+//
+//$context = array(
+//    'https' => array(
+//        'proxy' => "tcp://218.29.111.106:9999",
+//        'request_fulluri' => true,
+//        'timeout' => 5
+//    ),
+//
+//);
+//
+//$context = stream_context_create($context);
+//echo file_get_contents($question_url, false, $context);
+//
+//print_r(requests::$info); die();
 
 $insert = array();
 if (!empty($answer_arr))
@@ -137,11 +106,8 @@ for ($i=1; $i<=50; $i++)
     ));
 
     $answer_url    = 'https://www.zhihu.com/node/QuestionAnswerListV2';
-    $a = new requests();
-    $a->set_proxies(array('http'=>'http://124.88.67.10:80'));
-    echo $answer_result = requests::post($answer_url, $post_data);
-    print_r(requests::$info);
-    die();
+
+    $answer_result = requests::post($answer_url, $post_data);
 
     $answer_result = json_decode($answer_result, true);
     $answer_result = $answer_result['msg'];
@@ -168,7 +134,7 @@ sleep(1);
 if (!empty($has))
 {
     $sql = "UPDATE `zh_question_list` SET loaded=1 WHERE question_code={$question['question_code']}";
-    //db::query($sql);
+    db::query($sql);
 }
 
 if (empty($question))
