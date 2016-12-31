@@ -114,7 +114,8 @@ for ($i=1; $i<=50; $i++)
             $insert[] = get_answer($answer, $question);
         }
         $has = 1;
-        db::insert_batch('zh_question_answer', $insert);
+        $r = db::insert_batch('zh_question_answer', $insert, true);
+
     }
     else{
         break;
