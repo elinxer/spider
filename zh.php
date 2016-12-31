@@ -20,41 +20,8 @@ $GLOBALS['config']['db'] = array(
     'name'		=>	'spider',
 );
 
+$result = db::get_one("SELECT * FROM `zh_question_answer` LIMIT 1;");
 
-for ($i=1; $i<=74; $i++)
-{
-    $url = 'http://www.xicidaili.com/wn/'.$i;
+echo $html = selector::select($result['answer_html_content'], "//div[contains(@class, 'zm-editable-content')]");
 
-    $html = requests::get($url);
-
-    $ips = selector::select($html, "//tr[contains(@class, 'odd')]");
-
-    $insert = array();
-
-    foreach ($ips as $k=>$item)
-    {
-        $ip = selector::select($item, "//td[2]");
-        $port = selector::select($item, "//td[3]");
-        $address = selector::select($item, "//td[4]/a");
-        $anonymous = selector::select($item, "//td[5]");
-        $protocol = selector::select($item, "//td[6]");
-        $anonymous = selector::select($item, "//td[5]");
-        $anonymous = selector::select($item, "//td[5]");
-        $anonymous = selector::select($item, "//td[5]");
-        $anonymous = selector::select($item, "//td[5]");
-
-        $insert[] = array(
-            'ip'=>$ip,
-            'port'=>$port,
-            'address' => $address,
-            'anonymous' => $anonymous,
-            'protocol' => strtolower($protocol),
-        );
-
-    }
-
-
-    db::insert_batch('spider_proxy_ip', $insert);
-
-}
-
+//print_r($result);
