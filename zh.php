@@ -36,6 +36,12 @@ if (empty($author))
 
 $html = selector::select($answer['answer_html_content'], "//div[contains(@class, 'zm-editable-content')]");
 $html = str_replace('<i class="icon-external"/>', '', $html);
+$html = str_replace('<u>', '', $html);
+$html = str_replace('</u>', '', $html);
+
+$html = preg_replace ( "#<br/><br/>#is","<br/>", $html );
+$html = preg_replace ( "#<br/><br/><br/>#is","<br/><br/>", $html );
+$html = preg_replace ( "#<br/><br/><br/><br/>#is","<br/><br/>", $html );
 
 
 if (!empty($html))
@@ -55,6 +61,6 @@ if (!empty($html))
 
 }
 
+print_r($html);
 
-
-print_r($answer);
+//print_r($answer);
