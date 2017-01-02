@@ -20,8 +20,10 @@ $GLOBALS['config']['db'] = array(
     'name'		=>	'spider',
 );
 
+
+
 $result = db::get_one("SELECT * FROM `zh_question_answer` LIMIT 1;");
 
 echo $html = selector::select($result['answer_html_content'], "//div[contains(@class, 'zm-editable-content')]");
 
-//print_r($result);
+print_r($result);
