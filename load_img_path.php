@@ -33,7 +33,7 @@ $page_num  = isset($_GET['page_num'])?$_GET['page_num']:1; // 每次下载数
 
 $channel   = "zh";
 
-$where_str = "url='' and channel='zhihu' and having_load!=1";
+$where_str = "url='' and channel='zh' and having_load!=1";
 $limit     = "0, {$page_num}";
 
 $img_link  = db::get_one("select * from {$img_tbl} WHERE {$where_str} limit {$limit}");

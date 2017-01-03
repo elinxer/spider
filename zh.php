@@ -18,19 +18,18 @@ $GLOBALS['config']['db'] = array(
     'name'		=>	'spider',
 );
 
-
+die;
 $answer_list = db::get_all("SELECT
 	*
 FROM
 	spider.`zh_question_answer`
 LEFT JOIN zh_question_list ON zh_question_list.question_code=zh_question_answer.question_code
 WHERE
-	answer_agree >= 5000;");
+	answer_agree < 5000;");
 
+die();
 foreach ($answer_list as $k => $answer)
 {
-
-    if ($k >=10)break;
 
     $author = db::get_one("SELECT * FROM zhiteer.`user_author` WHERE author_cn_name='{$answer['answer_author_name']}' limit 1");
 
@@ -69,16 +68,19 @@ foreach ($answer_list as $k => $answer)
         {
             $token = md5($link);
             $link  = preg_replace("#pic\d+#is", 'pic', $link);
-            $link  = preg_replace("#_.*?.[jpg|png|gif]#is", '.jpg', $link);
+            $link  = preg_replace("#_.*?jpg#is", '.jpg', $link);
+            $link  = preg_replace("#_.*?png#is", '.png', $link);
+            $link  = preg_replace("#_.*?gif#is", '.gif', $link);
 
             $img_insert_arr = array(
                 'token'      => $token,
                 'source_url' => $link,
-                'channel'    => 'zhihu',
+                'channel'    => 'zh',
                 'add_time'   => time(),
             );
             db::insert('spider.spider_images', $img_insert_arr);
         }
+
     }
 
     if (!empty($html))
@@ -98,6 +100,14 @@ foreach ($answer_list as $k => $answer)
 
     }
 }
+
+
+
+
+
+
+
+
 
 die();
 
