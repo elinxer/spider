@@ -6,16 +6,8 @@
 ignore_user_abort();
 set_time_limit(7200);
 
-ini_set("memory_limit", "2048M");
 
-set_time_limit(700);
-
-error_reporting(E_ALL);
-
-require dirname(__FILE__).'/phpspider/core/requests.php';
-require dirname(__FILE__).'/phpspider/core/selector.php';
-require dirname(__FILE__).'/phpspider/core/db.php';
-require dirname(__FILE__).'/phpspider/core/util.php';
+require dirname(__FILE__).'/phpspider/core/init.php';
 
 $img_tbl = "spider.spider_images";
 
