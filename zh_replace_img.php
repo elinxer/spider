@@ -1,14 +1,7 @@
 <?php
 
-ini_set("memory_limit", "2048M");
-
-set_time_limit(0);
-
-error_reporting(E_ALL);
-
-require dirname(__FILE__).'/phpspider/core/requests.php';
-require dirname(__FILE__).'/phpspider/core/selector.php';
-require dirname(__FILE__).'/phpspider/core/db.php';
+ini_set("memory_limit", "1024M");
+require dirname(__FILE__).'/phpspider/core/init.php';
 
 $GLOBALS['config']['db'] = array(
     'host'		=>	'127.0.0.1',
@@ -19,84 +12,82 @@ $GLOBALS['config']['db'] = array(
 );
 
 
-$result = $db_obj->_get_data_from_table("zhiteer.article_list", false, $where, '*', '0,100');
+$result = db::get_all("SELECT * FROM zhiteer.article_content WHERE done=0 LIMIT 0,100");
 
-echo "还有文章：" . count($result);
-echo '<br>';
+foreach ($result as $k=> $article)
+{
+    $html = $article['post_content'];
+    $html = selector::remove($html, "//noscript");
 
-//print_r($result);die();
+    $img_links  = selector::select($html, "//img/@data-original");
 
-foreach ($result as $k=> $item) {
-
-    echo $item['link'] . '<br>';
-
-    $content    = $item['ori_content'];
-    $img_links  = $spider_factory_obj->F('zzc_bbs:get_img_from_article', $content, 2, '/face/');
-
-    echo $bbs_id = $item['id'];
-
-    $tokens_arr = array();
-    $img_re     = array();
-    $img_insert_arr = array();
-
-    foreach ($img_links['img_links'] as $ik=>$iv)
+    if (empty($img_links))
     {
-
-        
-        $link  = current(explode('?imageView2', $iv));
-        $token = md5($link);
-
-        $tokens_arr[] = "'".$token."'";
-
-        $where = "token='{$token}' and url!=''";
-        list($img) = $db_obj->_get_data_from_table($img_tbl, false, $where, 'token,url');
-
-        if(!empty($img))
-        {
-            $img_re[] = $img;
-        } else
-        {
-            $img_insert_arr[] = array(
-                'token'      => $token,
-                'source_url' => $link,
-                'channel'    => $config['img_channel'],
-                'add_time'   => time(),
-            );
-        }
-
+        //print_r($html);
+        //db::update('zhiteer.article_content', array('done'=>2));
+        continue;
     }
 
-    //print_r($img_insert_arr);die();
-    //$db_obj->_insert_tbl_filed($img_insert_arr, $img_tbl, true);
-
-    if((count($tokens_arr)) != (count($img_re)))
+    if (!is_array($img_links))
     {
+        $links = array($img_links);
+    }
+
+    $tokens_arr = array();
+    $img_arr    = array();
+
+    if (!empty($links))
+    { // 获取图片库
+        $img_links = array_values(array_unique($links));
+        $img_insert_arr = array();
+        foreach ($links as $link)
+        {
+            $token = md5($link);
+            $link  = preg_replace("#pic\d+#is", 'pic', $link);
+            $link  = preg_replace("#_.*?jpg#is", '.jpg', $link);
+            $link  = preg_replace("#_.*?png#is", '.png', $link);
+            $link  = preg_replace("#_.*?gif#is", '.gif', $link);
+
+            $tokens_arr[] = "'".$token."'";
+            $where = "token='{$token}' and url!=''";
+
+            $sql = "select * from spider.spider_images WHERE {$where}";
+            $img_re = db::get_one($sql);
+
+            if(!empty($img_re))
+            {
+                $img_arr[] = $img_re;
+            }
+        }
+    }
+
+    if((count($tokens_arr)) != (count($img_arr)))
+    { // 图片数据校对
         echo $k .'___';
         echo count($tokens_arr);
-        echo '<=>'.count($img_re);
-        echo "该篇文章id:({$item['id']})图片未下载完成<br>";
+        echo '<=>'.count($img_arr);
+        echo "该篇文章id:({$article['post_id']})图片未下载完成<br>";
         continue;
     }
 
     $img_links = array();
-    foreach ($img_re as $r)
+    foreach ($img_arr as $r)
     {
         $img_links[$r['token']] = $r['url'];
     }
 
     $pregRule  = "/<img.*?src=\"(.*?)\".*?>/is";
-    $content   = preg_replace_callback( $pregRule,
+    $content   = preg_replace_callback( $pregRule, function ($matches) use ($img_links)
+        {
+            $origin_img = selector::select($matches[0], "//img/@data-original");
 
-        function ($matches) use ($img_links) {
-
-            $link     = current(explode('?imageView2', $matches[1]));
+            $link     = $origin_img;
             $token    = md5($link);
             $img_link = $img_links[$token];
-            $img_link = str_replace("img.zuzuche.com", "imgcdn1.zuzuche.com", $img_link);
 
             if(!empty($img_link)) {
-                $img_link .= "!/fw/1000/unsharp/true/quality/50/format/jpg";
-                return $matches[0] = str_replace($matches[1], $img_link, $matches[0]);
+                $img_link = "http://pic.zhiteer.com" . $img_link;
+                return str_replace($matches[1], $img_link, $matches[0]);
             }
 
             if (strpos($link, '/face/') !== false) { //去掉表情图片
@@ -105,25 +96,24 @@ foreach ($result as $k=> $item) {
 
             return $matches[0];
         },
-        $content
+        $html
     );
 
     if(!empty($content))
     {
-        $update_arr = array(
-            'id'      => $item['id'],
-            'is_done' => 1,
-            'content' => $content,
-            'markdown_content' => $markdown_content,
+        $update = array(
+            'done' => 0,
+            'post_content_html' => $content,
+            //'markdown_content' => $markdown_content,
         );
 
-        echo $markdown_content;
-        echo '<br>------------';
-        echo $content; die();
+        $where_str = "post_id={$article['post_id']}";
+        //print_r($update);die();
 
-        $where_str = "id={$item['id']}";
-        //print_r($update_arr);die();
-        $db_obj->_update_table_filed($update_arr, $bbs_tbl, $where_str);
+        db::update("zhiteer.article_content", $update, $where_str);
+
+        echo "http://zhiteer.com/articles/{$article['post_id']}";
+        die();
     }
     else {
         echo '内容为空';
