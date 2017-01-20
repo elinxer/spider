@@ -16,12 +16,11 @@ $GLOBALS['config']['db'] = array(
 );
 $keji_tbl = "spider.spider_keji";
 
+$url_list = db::get_all("");
 
 $url = 'http://www.paper.edu.cn/releasepaper/subject/11044/常微分方程/2/11044';
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36');
-
 $con = requests::get($url);
-
 $con = selector::select($con, "//div[contains(@class, 'r_two')]");
 $con = selector::select($con, "//div[contains(@class, 'cmtdiv')]");
 
