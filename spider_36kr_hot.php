@@ -13,16 +13,14 @@ $GLOBALS['config']['db'] = array(
     'name'		=>	'zhiteer',
 );
 
-//$url = 'http://www.leiphone.com/';
-$url = 'http://www.leiphone.com/site/AjaxLoad/page/1';
-$html = requests::get($url);
+$url = 'http://36kr.com/';
 
-$result = json_decode($html, true);
+echo $html = requests::get($url);
 
-$html = $result['html'];
-$html = str_replace('&#13;', '', $html);
+$arr = selector::select($html, "//div[contains(@class, 'hot_article')]/ul/li");
 
-$arr = selector::select($html, "//li");
+print_r($arr);
+die();
 
 $num = 0;
 
