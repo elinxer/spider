@@ -124,3 +124,36 @@ KEY `title` (`title`),
 KEY `author` (`author`)
 ) ENGINE=MyISAM AUTO_INCREMENT=21 DEFAULT CHARSET=utf8;
  */
+/**
+
+ */
+
+// 清洗图片数据
+$ori_content = preg_replace_callback( "/<img.*?src=\"(.*?)\".*?>/is", function ($matches) {
+
+    if (strpos($matches[0], 'data-src="') !== false) {
+
+        $matches[0] = preg_replace("/[^(\-)]src=\"(.*)\"/iUs", '', $matches[0]);    // 去掉src属性
+        $matches[0] = str_replace("data-src=\"", 'src="', $matches[0]); // 重置图片src性
+
+        //重新匹配图片
+        preg_match("/<img.*?src=\"(.*?)\".*?>/is", $matches[0], $img);
+        $img_url = current(explode('?imageView2', $img[1]));
+    }
+    else {
+        $img_url = $matches[1];
+    }
+
+    if (!empty($img_url)) {
+
+        if (strpos($img_url, '/face/') !== false) { //去掉表情图片
+            return '';
+        }
+
+        return "<p><img src=\"{$img_url}\" /></p>";
+    } else {
+        return '';
+    }
+
+}, $ori_content
+);
