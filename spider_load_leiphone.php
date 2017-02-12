@@ -66,7 +66,7 @@ foreach ($arr as $k => $item)
     $author_intro = '';
 
     $released_at = selector::select($content_html, "//*[@class='time']");
-    $released_at = trim($released_at);
+    $released_at = strtotime($released_at);
 
     $content = selector::select($content_html, "//div[contains(@class, 'article-left')]/div[1]");
     $content = trim($content);
@@ -84,13 +84,14 @@ foreach ($arr as $k => $item)
         'content' => $content,
         'released_at' => $released_at,
         'intro' => $intro,
-        'created_at' => time()
+        'channel' => 'leiphone',
+        'created_at' => date('Y-m-d H:i:s')
     ];
 
     db::insert("spider_news", $news);
 
     echo $num++;
-    echo " 加载完成\r\n";
+    echo " loaded done\r\n";
 }
 
 if ($num == 0)
