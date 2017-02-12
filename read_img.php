@@ -42,3 +42,25 @@ function read_img($url, $pattern=1)
     }
     return false;
 }
+
+
+/**
+ * 获取远程文件数据
+ *
+ * @param $url
+ * @return array
+ */
+function http_get_data($url) {
+
+    $ch = curl_init ();
+    curl_setopt ( $ch, CURLOPT_CUSTOMREQUEST, 'GET' );
+    curl_setopt ( $ch, CURLOPT_SSL_VERIFYPEER, false );
+    curl_setopt ( $ch, CURLOPT_URL, $url );
+    ob_start ();
+    curl_exec ( $ch );
+    $return_content = ob_get_contents ();
+    ob_end_clean ();
+
+    $return_code = curl_getinfo ($ch);
+    return array('info'=>$return_code, 'data'=>$return_content);
+}
