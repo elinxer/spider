@@ -16,8 +16,36 @@ $GLOBALS['config']['db'] = array(
 
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
 
+for ($i=1;$i<=31917708; $i++)
+{
+    $pageSize = 100;
+    $first = ($i-1)*$pageSize;
+    $last  = $first + $pageSize;
+    if ($i == 1) {
+        $limit = "0,100";
+    }else {
+        $limit = "{$first},{$last}";
+    }
 
-
+    $rs = db::get_all("select * from spider_mapbar_location_name where is_load=0 limit {$limit}");
+    if (empty($rs)) {
+        echo "data is done for loader\n\r";
+        break;
+    }
+    foreach ($rs as $k => $item)
+    {
+        $url = $item['url'];
+        $html = requests::get($url);
+        $detail = selector::select($html, "//div[contains(@class, 'POI_wrap')]");
+        $insert = [
+            'location_name_id' => (int)$item['id'],
+            'content' => htmlspecialchars($detail)
+        ];
+        db::insert('spider_mapbar_location_info', $insert);
+        db::update('spider_mapbar_location_name', ['is_load'=>1], "id={$item['id']}");
+    }
+    echo "this part is done:{$first}-{$last}\n\r";
+}
 
 die();
 
