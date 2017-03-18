@@ -16,7 +16,7 @@ $GLOBALS['config']['db'] = array(
 
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
 
-for ($i=1;$i<=31917708; $i++)
+for ($i=13000;$i<=31917708; $i++)
 {
     $pageSize = 100;
     $first = ($i-1)*$pageSize;

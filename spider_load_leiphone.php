@@ -6,10 +6,10 @@ ini_set("memory_limit", "1024M");
 require dirname(__FILE__).'/phpspider/core/init.php';
 
 $GLOBALS['config']['db'] = array(
-    'host'		=>	'127.0.0.1',
+    'host'		=>	'121.43.191.145',
     'port'		=>	3306,
-    'user'		=>	'root',
-    'pass'		=>	'',
+    'user'		=>	'zhiteer',
+    'pass'		=>	'a654753115',
     'name'		=>	'zhiteer',
 );
 
@@ -27,6 +27,9 @@ $arr = selector::select($html, "//li");
 $num = 0;
 
 $news = [];
+if (empty($arr)) {
+    echo "list is empty";exit();
+}
 foreach ($arr as $k => $item)
 {
     $item = str_replace('&#13;', '', $item);
@@ -70,24 +73,30 @@ foreach ($arr as $k => $item)
 
     $content = selector::select($content_html, "//div[contains(@class, 'article-left')]/div[1]");
     $content = trim($content);
+    $content = selector::remove($content, "//iframe");
+
+    if (empty($intro) && !empty($content)) {
+        $intro = substr(strip_tags($content), 0, 200);
+    }
 
     $news = [
         'hash' => $hash,
         'title' => $title,
         'link'  => $link,
         'cover' => $img,
-        'img_original' => current(explode('?image', $img)),
+        'cover_original' => current(explode('?image', $img)),
         'tags' => $tags,
-        'author'=> $author,
+        'author_name'=> $author,
         'author_intro' => $author_intro,
         'author_avater'=> $author_avater,
         'content' => $content,
         'released_at' => $released_at,
         'intro' => $intro,
         'channel' => 'leiphone',
-        'created_at' => date('Y-m-d H:i:s')
+        'created_at' => time()
     ];
 
+    //print_r($news);die();
     db::insert("spider_news", $news);
 
     echo $num++;
@@ -127,7 +136,7 @@ KEY `author` (`author`)
  */
 /**
 
- */
+
 
 // 清洗图片数据
 $ori_content = preg_replace_callback( "/<img.*?src=\"(.*?)\".*?>/is", function ($matches) {
@@ -158,3 +167,5 @@ $ori_content = preg_replace_callback( "/<img.*?src=\"(.*?)\".*?>/is", function (
 
 }, $ori_content
 );
+
+ */
