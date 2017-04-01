@@ -6,14 +6,6 @@
 ini_set("memory_limit", "1024M");
 require dirname(__FILE__).'/phpspider/core/init.php';
 
-$GLOBALS['config']['db'] = array(
-    'host'		=>	'121.43.191.145',
-    'port'		=>	3306,
-    'user'		=>	'zhiteer',
-    'pass'		=>	'a654753115',
-    'name'		=>	'zhiteer',
-);
-
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
 $url = "http://art.china.cn/";
 $html = requests::get($url);

@@ -5,14 +5,6 @@
 ini_set("memory_limit", "1024M");
 require dirname(__FILE__).'/phpspider/core/init.php';
 
-$GLOBALS['config']['db'] = array(
-    'host'		=>	'121.43.191.145',
-    'port'		=>	3306,
-    'user'		=>	'zhiteer',
-    'pass'		=>	'a654753115',
-    'name'		=>	'zhiteer',
-);
-
 //$url = 'http://www.leiphone.com/';
 $url = 'http://www.leiphone.com/site/AjaxLoad/page/1';
 $html = requests::get($url);
