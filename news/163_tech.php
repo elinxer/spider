@@ -43,7 +43,9 @@ foreach ($arr as $link)
     $released_at = selector::select($article_wrap, "//div[@class='post_time_source']");
     $released_at = preg_match("#\d{4}-\d{2}-\d{2}#iUs", $released_at);
     $released_at = strtotime($released_at);
-
+    if (empty($released_at)) {
+        $released_at = time();
+    }
     $content = selector::select($article_wrap, "//div[contains(@class, 'post_text')]");
     $content = trim($content);
     $content = selector::remove($content, "//iframe");

@@ -146,6 +146,7 @@ if (!empty($answer_arr))
         echo $publish_time;
         $post_id = 0;
         $title = $question['question_title'];
+        $question_detail = str_replace('显示全部','', $question_detail);
         if (!empty($title))
         {
             $posts = [

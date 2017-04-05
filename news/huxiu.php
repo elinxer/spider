@@ -6,6 +6,7 @@
 ini_set("memory_limit", "1024M");
 require dirname(__FILE__) . '/../phpspider/core/init.php';
 
+die();
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
 
 $url = "https://www.huxiu.com/";
