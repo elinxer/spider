@@ -3,7 +3,7 @@
  * 雷锋网文章下载
  */
 ini_set("memory_limit", "1024M");
-require dirname(__FILE__).'/phpspider/core/init.php';
+require dirname(__FILE__).'/../phpspider/core/init.php';
 
 //$url = 'http://www.leiphone.com/';
 $url = 'http://www.leiphone.com/site/AjaxLoad/page/1';
