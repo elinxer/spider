@@ -1,12 +1,12 @@
 <?php
 /**
- * 加载知乎问题答案
+ * 爬脚本之家的所有php文章
  */
 ini_set("memory_limit", "2048M");
 require dirname(__FILE__).'/../phpspider/core/init.php';
 
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36');
-
+die();
 $tags = ['php', '网络编程', 'web编程', '脚本语言', '世界上最好的语言'];
 $tag_ids = [];
 if (!empty($tags))
@@ -32,7 +32,7 @@ if (!empty($tags))
 
 for ($i=1; $i<=250; $i++)
 {
-    $list_url = "http://www.jb51.net/list/list_15_{$i}.htm";
+    //$list_url = "http://www.jb51.net/list/list_15_{$i}.htm";
     $html = requests::get($list_url);
     $content = selector::select($html, "//div[@class='artlist clearfix']");
     $list_arr = selector::select($content, "//dt");
