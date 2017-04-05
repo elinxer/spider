@@ -35,11 +35,10 @@ foreach ($arr as $k => $item)
     $cover = current(explode('?image', $cover));
 
     $tags = selector::select($item, "//div[contains(@class, 'tags')]/a");
-    $author = selector::select($item, "//div[contains(@class, 'word')]/div/a");
-    $author = trim(strip_tags($author));
+    $author_name = selector::select($item, "//div[contains(@class, 'word')]/div/a");
+    $author_name = trim(strip_tags($author_name));
     $author_avater = selector::select($item, "//div[contains(@class, 'word')]/div/a/img/@src");
     $content_html = requests::get($link);
-
     $intro = selector::select($content_html, "//div[contains(@class, 'article-lead')]");
     $intro = trim(str_replace('导语：', '', strip_tags($intro)));
     $author_intro = '';
