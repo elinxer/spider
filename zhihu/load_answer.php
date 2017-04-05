@@ -115,7 +115,7 @@ if (!empty($answer_arr))
         $publish_time = end($publish_time);
         $publish_time = trim($publish_time);
         $publish_time = date('Y-m-d H:i:s', strtotime($publish_time));
-        if (empty($publish_time)) {
+        if (empty($publish_time) || $publish_time == '1970-01-01 08:00:00') {
             $publish_time = date('Y-m-d H:i:s');
         }
         $author_html = selector::select($answer, "//div[@class='AuthorInfo']");
@@ -143,7 +143,7 @@ if (!empty($answer_arr))
             $author = db::get_one("SELECT * FROM `authors` WHERE author_name='{$author_name}' LIMIT 1;");
             $author_id = $author['author_id'];
         }
-
+        echo $publish_time;
         $post_id = 0;
         $title = $question['question_title'];
         if (!empty($title))
@@ -155,7 +155,7 @@ if (!empty($answer_arr))
                 'cover' => '',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-                'released_at' => date('Y-m-d H:i:s'),
+                'released_at' => $publish_time,
             ];
             $post_id = db::insert('posts', $posts);
             // 更新标签关系
@@ -169,7 +169,7 @@ if (!empty($answer_arr))
                         $tag_taggables = [
                             'tag_id' => $t,
                             'taggable_id' => $post_id,
-                            'taggable_type' => 'App\\Models\\Post',
+                            'taggable_type' => 'App\\\Models\\\Post',
                         ];
                         db::insert('tag_taggables', $tag_taggables);
                     }
