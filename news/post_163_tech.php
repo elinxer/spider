@@ -79,6 +79,10 @@ foreach ($arr as $link)
     {
         foreach ($tags as $tag)
         {
+            $tag = trim($tag);
+            if (empty($tag)) {
+                continue;
+            }
             $tr = db::get_one("select * from tags where `name`='{$tag}' limit 1");
             if (!empty($tr)) {
                 $tag_ids[] = $tr['id'];
