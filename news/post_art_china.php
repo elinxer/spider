@@ -1,15 +1,13 @@
 <?php
 /**
- * 爬取虎嗅网数据
- * 2017-03-11
+ * 爬取艺术中国首页资讯栏目数据
+ * 2017-03-18
  */
 ini_set("memory_limit", "1024M");
-require dirname(__FILE__) . '/../phpspider/core/init.php';
+require dirname(__FILE__).'/../phpspider/core/init.php';
 
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36');
-
-$url = "https://www.huxiu.com/";
-
+$url = "http://art.china.cn/";
 $html = requests::get($url);
 
 $arr = selector::select($html, "//a/@href");
@@ -18,74 +16,53 @@ if (empty($arr)) {
 }
 foreach ($arr as $k => $item)
 {
-    if (strpos($item, '/article/') === false)
+    if (preg_match("#zixun/\d{4}-\d{2}/\d+/.*?#iUs", $item) ==false)
     {
         unset($arr[$k]);continue;
     }
     $arr[$k] = $url . $item;
 }
-$arr = array_values($arr);
+if (!empty($arr)) {
+    $arr = array_unique($arr);
+    $arr = array_values($arr);
+}
+
 $num = 0;
 foreach ($arr as $link)
 {
-    $hash = md5('huxiu'.$link);
-    if (db::get_one("select * from zhiteer.spider_news WHERE hash='{$hash}'")) {
-        continue;
-    }
+
     $content_html = requests::get($link);
-    $article_wrap = selector::select($content_html, "//div[contains(@class, 'article-wrap')]");
+    $article_wrap = selector::select($content_html, "//div[contains(@class, 'left')]");
     if (is_array($article_wrap)) {
         $article_wrap = current($article_wrap);
     }
     $title = selector::select($article_wrap, "//h1");
     $title = trim($title);
 
-    $tags = selector::select($article_wrap, "//div[contains(@class, 'column-link-box')]/a");
-
-    $wrap_right = selector::select($content_html, "//div[contains(@class, 'wrap-right')]");
-    $author_html = selector::select($wrap_right, "//div[contains(@class, 'box-author-info')]");
-
-    $author_name = selector::select($author_html, "//div[contains(@class, 'author-name')]/a[1]");
-    $author_name = trim(strip_tags($author_name));
-    $author_avater = selector::select($author_html, "//div[contains(@class, 'author-face')]/a/img/@src");
-
-    $cover = selector::select($article_wrap, "//div[contains(@class, 'article-img-box')]/img/@src");
-    $released_at = selector::select($article_wrap, "//span[@class='article-time pull-left']");
+    $released_at = selector::select($article_wrap, "//span[@id='pubtime_baidu']");
+    $released_at = trim($released_at);
     $released_at = date('Y-m-d H:i:s', strtotime($released_at));
     if (empty($released_at) || $released_at == '1970-01-01 08:00:00') {
         $released_at = date('Y-m-d H:i:s');
     }
 
-    $content = selector::select($content_html, "//div[contains(@class, 'article-content-wrap')]");
+    $content = selector::select($article_wrap, "//div[contains(@class, 'content')]");
     $content = trim($content);
     $content = selector::remove($content, "//iframe");
 
+    $content = str_replace('src="../../images/', 'src="http://art.china.cn/zixun/images/', $content);
+
+    $cover = selector::select($content, "//img[1]/@src");
+    if (is_array($cover)) {
+        $cover = current($cover);
+    }
     $intro = '';
     if (empty($intro) && !empty($content)) {
         $intro = substr(strip_tags($content), 0, 400);
+        $intro = trim($intro);
     }
-    // =======================
-    $content = preg_replace_callback( "#<p>(.*)</p>#iUs", function ($matches)
-    {
-        $matches[1] = trim(strip_tags($matches[1]));
-        if ($matches[1] == '&nbsp;' || $matches[1] == ' '|| strlen($matches[1])<=2)
-        {
-            return '';
-        }
-        return $matches[0];
-    }, $content);
-    if (is_array($tags)) {
-        foreach ($tags as $tkk=>$tt)
-        {
-            $tags[$tkk] = trim($tt);
-        }
-    } else {
-        $tags = array(trim($tags));
-    }
-
-    $tags[] = '新闻';
-    $tags[] = '虎嗅网';
-
+    $tags = [];
+    $tags[] = '艺术中国网';
     $tag_ids = [];
     if (!empty($tags))
     {
@@ -107,9 +84,7 @@ foreach ($arr as $link)
         $tag_ids = array_unique($tag_ids);
         $tag_ids = array_values($tag_ids);
     }
-    if(empty($author_name)) {
-        $author_name = '匿名作者';
-    }
+    $author_name = '艺术中国';
     $author = db::get_one("SELECT * FROM `authors` WHERE author_name='{$author_name}' LIMIT 1;");
     $author_id = $author['author_id'];
     if (empty($author_id))
@@ -118,7 +93,7 @@ foreach ($arr as $link)
             [
                 'author_name'=> $author_name,
                 'author_desc'=> '',
-                'author_avater' => $author_avater,
+                'author_avater' => '',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => $released_at,
             ]
@@ -175,9 +150,7 @@ foreach ($arr as $link)
     }
     // ===========================================
 
+
     echo $num++;
     echo " loaded done\r\n";
 }
-
-//print_r($arr);
-

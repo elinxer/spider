@@ -133,6 +133,7 @@ foreach ($arr as $k => $item)
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s'),
             'released_at' => $released_at,
+            'released' => 1
         ];
         $post_id = db::insert('posts', $posts);
         // 更新标签关系
