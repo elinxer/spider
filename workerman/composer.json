@@ -1,6 +1,6 @@
 {
-    "name"  : "workerman/workerman-for-win",
-    "type"  : "project",
+    "name"  : "workerman/workerman",
+    "type"  : "library",
     "keywords": ["event-loop", "asynchronous"],
     "homepage": "http://www.workerman.net",
     "license" : "MIT",
@@ -22,6 +22,9 @@
     },
     "require": {
         "php": ">=5.3"
+    },
+    "suggest": {
+	"ext-event": "For better performance."
     },
     "autoload": {
         "psr-4": {"Workerman\\": "./"}
