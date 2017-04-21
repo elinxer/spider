@@ -122,8 +122,9 @@ foreach ($arr as $k => $item)
         $author = db::get_one("SELECT * FROM `authors` WHERE author_name='{$author_name}' LIMIT 1;");
         $author_id = $author['author_id'];
     }
-    if (db::get_one("select * from posts where `title`='{$title}' and author_id='{$author_id}' limit 1")) {
+    if ($rs = db::get_one("select * from posts where `title`='{$title}' and author_id='{$author_id}' limit 1")) {
         echo " jump\r\n";
+        db::update('post_content', array('post_content'=>$content), "post_id={$rs['id']}");
         continue;
     }
     $post_id = 0;
