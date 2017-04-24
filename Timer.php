@@ -19,14 +19,15 @@ $ws_worker->onMessage = function($connection, $data) {
 
 $ws_worker->onWorkerStart = function($ws_worker)
 {
-    // 每2.5秒执行一次
-    $time_interval = 80000;
+    // 每秒执行一次
+    $time_interval = 20000;
     Timer::add($time_interval, function()
     {
         @file_get_contents('http://spider.zhiteer.com/news/post_art_china.php');
         @file_get_contents('http://spider.zhiteer.com/news/post_163_tech.php');
         @file_get_contents('http://spider.zhiteer.com/news/post_leiphone.php');
         @file_get_contents('http://spider.zhiteer.com/news/post_huxiu.php');
+        @file_get_contents('http://spider.zhiteer.com/news/kanchai.php');
         echo "task run\n";
     });
 };
