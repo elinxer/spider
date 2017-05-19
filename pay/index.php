@@ -8,13 +8,19 @@ require dirname(__FILE__).'/../phpspider/core/init.php';
 
 requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.75 Safari/537.36');
 
-requests::set_header('cookie', 'ALIPAYJSESSIONID=RZ13MUEGVuOoOVmdSkEvvb7dcZpalOauthRZ13GZ00');
+requests::set_header('cookie', 'ALIPAYJSESSIONID=GZ00HFyoqMX2IzN3FbIpXwlFpk0v3kconsumeprodGZ00');
 
 requests::$input_encoding = 'GBK';
 requests::$output_encoding = 'utf-8';
 $r = requests::get('https://consumeprod.alipay.com/record/standard.htm');
 
+requests::get_response_headers($r);
+
+requests::get_response_cookies('https://consumeprod.alipay.com');
+var_dump(requests::$info);
+var_dump(requests::$domain_cookies);
 if (requests::$status_code != 200) {
+    echo date('Y-m-d H:i:s');
     die('请求失败');
 }
 $r = selector::remove($r, "//script");
@@ -31,3 +37,13 @@ foreach ($arr as $k=> $item)
     $orderIds[] = selector::select($td, "//a/@data-clipboard-text");
 }
 print_r($orderIds);
+
+?>
+
+<script>
+    setTimeout(function(){
+        //10s后要执行的代码
+        location.reload();
+    }, 5000);
+</script>
+
