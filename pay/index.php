@@ -10,11 +10,22 @@ requests::set_useragent(' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 requests::set_header('cookie', 'ALIPAYJSESSIONID=RZ12ledYdN0QYBqKDVvLagakcdWoGXauthRZ13GZ00');
 
-$r = requests::get('https://consumeprod.alipay.com/record/standard.htm');
 requests::$input_encoding = 'GBK';
-$arr = selector::select($r, "//tr");
+requests::$output_encoding = 'utf-8';
+$r = requests::get('https://consumeprod.alipay.com/record/standard.htm');
 
+$r = selector::remove($r, "//script");
+preg_match_all('#<table class="ui-record-table table-index-bill" id="tradeRecordsIndex" width="100%">(.*)</table>#iUs',$r, $arr);
 
+$html = $arr[0][0];
+$arr = selector::select($html, "//tr");
 
-print_r($arr);
-print_r($r);
+foreach ($arr as $k=> $item)
+{
+    if ($k==0) continue;
+    $tr = $item;
+    $tdArr = selector::select($tr, "//td/2");
+
+    print_r($tdArr);
+}
+
