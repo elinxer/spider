@@ -16,5 +16,5 @@ $arr = selector::select($r, "//tr");
 
 
 
-//print_r($arr);
+print_r($arr);
 print_r($r);
