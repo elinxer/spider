@@ -24,7 +24,7 @@ foreach ($arr as $k=> $item)
 {
     if ($k==0) continue;
     $tr = $item;
-    $tdArr = selector::select($tr, "//td/2");
+    $tdArr = selector::select($tr, "//td/[2]");
 
     print_r($tdArr);
 }
